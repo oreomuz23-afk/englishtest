@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Vocabulary Trainer</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 50px;
+        }
+
+        /* Tabs Styling */
+        .tabs {
+            display: flex;
+            width: 100%;
+            background: var(--primary);
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab-btn {
+            padding: 15px 30px;
+            color: #bdc3c7;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            color: white;
+            border-bottom: 4px solid var(--success);
+        }
+
+        .content-section {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 30px;
+            padding: 0 20px;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .container {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        /* Level 1 Styles */
+        .word-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .english-word {
+            background: #edf2f7;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        select, input {
+            padding: 12px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+        }
+
+        /* Level 2 Styles */
+        .quiz-card {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .kazakh-word-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: var(--secondary);
+        }
+
+        .quiz-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        /* Feedback Colors */
+        .correct { border-color: var(--success) !important; background-color: #d4edda !important; }
+        .incorrect { border-color: var(--error) !important; background-color: #f8d7da !important; }
+
+        /* Common Buttons */
+        .controls { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+        button.main-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-check { background: var(--primary); color: white; }
+        .btn-next { background: var(--success); color: white; }
+        .btn-reset { background: #95a5a6; color: white; }
+        button:hover { opacity: 0.9; }
+
+        #finish-message {
+            display: none;
+            font-size: 20px;
+            color: var(--success);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('level1')">1-деңгей (Сәйкестендіру)</button>
+        <button class="tab-btn" onclick="showTab('level2')">2-деңгей (Рандом тест)</button>
+    </div>
+
+    <div id="level1" class="content-section active">
+        <div class="container">
+            <h2 style="text-align:center">Сөздерді сәйкестендір</h2>
+            <div id="game-grid" class="word-grid"></div>
+            <div class="controls">
+                <button class="main-btn btn-check" onclick="checkLevel1()">Тексеру</button>
+                <button class="main-btn btn-reset" onclick="initLevel1()">Жаңарту</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="level2" class="content-section">
+        <div class="container quiz-card">
+            <h2>Ағылшыншасын тап</h2>
+            <div id="quiz-box">
+                <div id="kaz-word" class="kazakh-word-display">Бастау үшін "Келесі" батырмасын басыңыз</div>
+                <input type="text" id="eng-input" placeholder="Ағылшынша аудармасын жазыңыз..." autocomplete="off">
+                
+                <div class="quiz-controls">
+                    <button class="main-btn btn-check" onclick="checkLevel2()">Тексеру</button>
+                    <button class="main-btn btn-next" onclick="nextQuestion()">Рандом / Келесі</button>
+                </div>
+            </div>
+            <div id="finish-message">Сөздер аяқталды! ✅</div>
+            <p id="counter" style="margin-top: 20px; color: #7f8c8d;"></p>
+        </div>
+    </div>
+
+    <script>
+        const vocabulary = [
+            { en: "unfold", kk: "ашылу, өрістеу (оқиғаның дамуы)" },
+            { en: "report (on)", kk: "(бірдеңе туралы) баяндау, есеп беру" },
+            { en: "sceptic", kk: "скептик, күмәншіл адам" },
+            { en: "freeway", kk: "тас жол, автомагистраль" },
+            { en: "lined with", kk: "жиегінде орналасқан, бойлай тізілген" },
+            { en: "billboard", kk: "жарнама тақтасы (билборд)" },
+            { en: "assignment", kk: "тапсырма" },
+            { en: "spot", kk: "байқап қалу / орын, мекен" },
+            { en: "cattle farmer", kk: "мал фермері (мал өсіруші)" },
+            { en: "weather balloon", kk: "метеорологиялық шар (зонд)" },
+            { en: "debris", kk: "сынықтар, үйінділер, қалдықтар" },
+            { en: "aircraft", kk: "ұшу аппараты (ұшақ)" },
+            { en: "hangar", kk: "ангар (ұшақ тұратын орын)" },
+            { en: "army base", kk: "әскери база" },
+            { en: "remains", kk: "қалдықтар, мәйіт" },
+            { en: "eye-witness account", kk: "куәгердің айғағы (көзбен көргеннің әңгімесі)" },
+            { en: "hieroglyphics", kk: "иероглифтер" },
+            { en: "autopsy", kk: "мәйітті сою (сараптама жасау)" },
+            { en: "oval-shaped", kk: "сопақ пішінді" },
+            { en: "burst", kk: "жарылу" },
+            { en: "hotspot", kk: "белсенді орын, қызу нүкте" },
+            { en: "weird", kk: "оғаш, біртүрлі, ерсі" },
+            { en: "formation", kk: "құрылым, қалыптасу" },
+            { en: "doubtful", kk: "күмәнді" },
+            { en: "eerie", kk: "үрейлі, зәрені алатын" },
+            { en: "rattlesnake", kk: "сылдырмақты жылан" }
+        ];
+
+        // --- ТАБТАРДЫ АУЫСТЫРУ ---
+        function showTab(tabId) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(tabId === 'level2') resetLevel2();
+        }
+
+        // --- 1-ДЕҢГЕЙ ЛОГИКАСЫ ---
+        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
+        function initLevel1() {
+            const grid = document.getElementById('game-grid');
+            grid.innerHTML = '';
+            const kazakhOptions = shuffle([...vocabulary.map(item => item.kk)]);
+            
+            vocabulary.forEach((pair, index) => {
+                const row = document.createElement('div');
+                row.className = 'word-row';
+                row.style.display = 'contents';
+                row.innerHTML = `
+                    <div class="english-word">${pair.en}</div>
+                    <select id="l1-select-${index}">
+                        <option value="">Таңдаңыз...</option>
+                        ${kazakhOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                    </select>
+                `;
+                grid.appendChild(row);
+            });
+        }
+
+        function checkLevel1() {
+            vocabulary.forEach((pair, index) => {
+                const select = document.getElementById(`l1-select-${index}`);
+                select.className = (select.value === pair.kk) ? 'correct' : 'incorrect';
+            });
+        }
+
+        // --- 2-ДЕҢГЕЙ ЛОГИКАСЫ ---
+        let level2Words = [];
+        let currentWordIndex = -1;
+
+        function resetLevel2() {
+            level2Words = shuffle([...vocabulary]);
+            currentWordIndex = -1;
+            document.getElementById('quiz-box').style.display = 'block';
+            document.getElementById('finish-message').style.display = 'none';
+            document.getElementById('eng-input').value = '';
+            document.getElementById('eng-input').className = '';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentWordIndex++;
+            if (currentWordIndex >= level2Words.length) {
+                document.getElementById('quiz-box').style.display = 'none';
+                document.getElementById('finish-message').style.display = 'block';
+                document.getElementById('counter').textContent = "";
+                return;
+            }
+            
+            const input = document.getElementById('eng-input');
+            input.value = '';
+            input.className = '';
+            document.getElementById('kaz-word').textContent = level2Words[currentWordIndex].kk;
+            document.getElementById('counter').textContent = `Сөз: ${currentWordIndex + 1} / ${level2Words.length}`;
+        }
+
+        function checkLevel2() {
+            const input = document.getElementById('eng-input');
+            const userAnswer = input.value.trim().toLowerCase();
+            const correctAnswer = level2Words[currentWordIndex].en.toLowerCase();
+
+            if (userAnswer === correctAnswer) {
+                input.className = 'correct';
+            } else {
+                input.className = 'incorrect';
+                alert(`Қате! Дұрыс жауабы: ${level2Words[currentWordIndex].en}`);
+            }
+        }
+
+        // Бастапқы іске қосу
+        initLevel1();
+    </script>
+</body>
+</html>
