@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Vocabulary Trainer</title>
+    <title>English Mastery - 3 Levels</title>
     <style>
         :root {
             --primary: #2c3e50;
@@ -12,20 +12,19 @@
             --error: #e74c3c;
             --bg: #f4f7f6;
             --white: #ffffff;
+            --border: #cbd5e0;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             background-color: var(--bg);
-            color: var(--primary);
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-bottom: 50px;
         }
 
-        /* Tabs Styling */
+        /* Навигация */
         .tabs {
             display: flex;
             width: 100%;
@@ -34,15 +33,16 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .tab-btn {
-            padding: 15px 30px;
+            padding: 18px 25px;
             color: #bdc3c7;
             border: none;
             background: none;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             transition: 0.3s;
         }
@@ -55,132 +55,159 @@
         .content-section {
             display: none;
             width: 100%;
-            max-width: 800px;
-            margin-top: 30px;
+            max-width: 850px;
+            margin: 30px auto;
             padding: 0 20px;
         }
 
-        .content-section.active {
-            display: block;
-        }
+        .content-section.active { display: block; }
 
         .container {
             background: var(--white);
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
-        /* Level 1 Styles */
+        h2 { text-align: center; color: var(--secondary); margin-top: 0; }
+
+        /* Level 1: Matching */
         .word-grid {
             display: grid;
             grid-template-columns: 1fr 1.5fr;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
-
-        .english-word {
-            background: #edf2f7;
-            padding: 12px 15px;
+        .en-label {
+            background: #f1f5f9;
+            padding: 10px 15px;
             border-radius: 8px;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            font-weight: 600;
         }
 
+        /* Level 2 & 3: Inputs and Buttons */
         select, input {
             padding: 12px;
-            border: 2px solid #cbd5e0;
+            border: 2px solid var(--border);
             border-radius: 8px;
-            font-size: 14px;
-            outline: none;
             width: 100%;
+            box-sizing: border-box;
+            outline: none;
         }
 
-        /* Level 2 Styles */
-        .quiz-card {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .kazakh-word-display {
-            font-size: 24px;
+        .quiz-display {
+            font-size: 28px;
             font-weight: bold;
+            text-align: center;
+            margin: 30px 0;
+            color: var(--primary);
+        }
+
+        /* Level 3: Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
             margin-bottom: 25px;
-            color: var(--secondary);
         }
-
-        .quiz-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
+        .option-card {
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
         }
+        .option-card:hover { background: #f8fafc; border-color: var(--primary); }
+        .option-card.selected { border-color: var(--primary); background: #ebf4ff; }
 
-        /* Feedback Colors */
-        .correct { border-color: var(--success) !important; background-color: #d4edda !important; }
-        .incorrect { border-color: var(--error) !important; background-color: #f8d7da !important; }
+        /* Status Colors */
+        .correct { border-color: var(--success) !important; background-color: #d4edda !important; color: #155724; }
+        .incorrect { border-color: var(--error) !important; background-color: #f8d7da !important; color: #721c24; }
 
-        /* Common Buttons */
-        .controls { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
-        button.main-btn {
-            padding: 12px 25px;
+        /* Global Buttons */
+        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+        .btn {
+            padding: 12px 30px;
             border: none;
             border-radius: 8px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
             transition: 0.2s;
         }
         .btn-check { background: var(--primary); color: white; }
         .btn-next { background: var(--success); color: white; }
         .btn-reset { background: #95a5a6; color: white; }
-        button:hover { opacity: 0.9; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        #finish-message {
-            display: none;
-            font-size: 20px;
-            color: var(--success);
-            font-weight: bold;
-        }
+        .finish-screen { text-align: center; display: none; padding: 40px; }
+        .counter { text-align: center; color: #7f8c8d; margin-top: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('level1')">1-деңгей (Сәйкестендіру)</button>
-        <button class="tab-btn" onclick="showTab('level2')">2-деңгей (Рандом тест)</button>
+        <button class="tab-btn active" onclick="switchTab('level1')">1-деңгей (Сәйкестендіру)</button>
+        <button class="tab-btn" onclick="switchTab('level2')">2-деңгей (Жазу)</button>
+        <button class="tab-btn" onclick="switchTab('level3')">3-деңгей (Таңдау)</button>
     </div>
 
     <div id="level1" class="content-section active">
         <div class="container">
-            <h2 style="text-align:center">Сөздерді сәйкестендір</h2>
-            <div id="game-grid" class="word-grid"></div>
-            <div class="controls">
-                <button class="main-btn btn-check" onclick="checkLevel1()">Тексеру</button>
-                <button class="main-btn btn-reset" onclick="initLevel1()">Жаңарту</button>
+            <h2>Сөздерді сәйкестендір</h2>
+            <div id="l1-grid" class="word-grid"></div>
+            <div class="btn-group">
+                <button class="btn btn-check" onclick="checkL1()">Тексеру</button>
+                <button class="btn btn-reset" onclick="initL1()">Жаңарту</button>
             </div>
         </div>
     </div>
 
     <div id="level2" class="content-section">
-        <div class="container quiz-card">
-            <h2>Ағылшыншасын тап</h2>
-            <div id="quiz-box">
-                <div id="kaz-word" class="kazakh-word-display">Бастау үшін "Келесі" батырмасын басыңыз</div>
-                <input type="text" id="eng-input" placeholder="Ағылшынша аудармасын жазыңыз..." autocomplete="off">
-                
-                <div class="quiz-controls">
-                    <button class="main-btn btn-check" onclick="checkLevel2()">Тексеру</button>
-                    <button class="main-btn btn-next" onclick="nextQuestion()">Рандом / Келесі</button>
+        <div class="container">
+            <h2>Ағылшыншасын жаз</h2>
+            <div id="l2-game">
+                <div id="l2-q" class="quiz-display"></div>
+                <input type="text" id="l2-input" placeholder="Аудармасын осында жазыңыз..." autocomplete="off">
+                <div class="btn-group">
+                    <button class="btn btn-check" onclick="checkL2()">Тексеру</button>
+                    <button class="btn btn-next" onclick="nextL2()">Келесі</button>
                 </div>
+                <div id="l2-count" class="counter"></div>
             </div>
-            <div id="finish-message">Сөздер аяқталды! ✅</div>
-            <p id="counter" style="margin-top: 20px; color: #7f8c8d;"></p>
+            <div id="l2-finish" class="finish-screen">
+                <h3>Құттықтаймыз! 🎉</h3>
+                <p>Барлық сөздерді аяқтадыңыз.</p>
+                <button class="btn btn-reset" onclick="startL2()">Қайта бастау</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="level3" class="content-section">
+        <div class="container">
+            <h2>Дұрыс нұсқаны таңда</h2>
+            <div id="l3-game">
+                <div id="l3-q" class="quiz-display"></div>
+                <div id="l3-options" class="options-grid"></div>
+                <div class="btn-group">
+                    <button class="btn btn-check" onclick="checkL3()">Тексеру</button>
+                    <button class="btn btn-next" onclick="nextL3()">Келесі</button>
+                </div>
+                <div id="l3-count" class="counter"></div>
+            </div>
+            <div id="l3-finish" class="finish-screen">
+                <h3>Керемет! ✅</h3>
+                <p>3-деңгейдің барлық сұрақтары бітті.</p>
+                <button class="btn btn-reset" onclick="startL3()">Қайта бастау</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const vocabulary = [
+        const data = [
             { en: "unfold", kk: "ашылу, өрістеу (оқиғаның дамуы)" },
             { en: "report (on)", kk: "(бірдеңе туралы) баяндау, есеп беру" },
             { en: "sceptic", kk: "скептик, күмәншіл адам" },
@@ -209,90 +236,121 @@
             { en: "rattlesnake", kk: "сылдырмақты жылан" }
         ];
 
-        // --- ТАБТАРДЫ АУЫСТЫРУ ---
-        function showTab(tabId) {
+        let l2Words = [], l2Idx = 0;
+        let l3Words = [], l3Idx = 0, selectedOpt = null;
+
+        function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+
+        function switchTab(id) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+            document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
-            if(tabId === 'level2') resetLevel2();
+            if(id === 'level2') startL2();
+            if(id === 'level3') startL3();
         }
 
-        // --- 1-ДЕҢГЕЙ ЛОГИКАСЫ ---
-        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
-
-        function initLevel1() {
-            const grid = document.getElementById('game-grid');
+        // LEVEL 1
+        function initL1() {
+            const grid = document.getElementById('l1-grid');
             grid.innerHTML = '';
-            const kazakhOptions = shuffle([...vocabulary.map(item => item.kk)]);
-            
-            vocabulary.forEach((pair, index) => {
-                const row = document.createElement('div');
-                row.className = 'word-row';
-                row.style.display = 'contents';
-                row.innerHTML = `
-                    <div class="english-word">${pair.en}</div>
-                    <select id="l1-select-${index}">
-                        <option value="">Таңдаңыз...</option>
-                        ${kazakhOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
-                    </select>
-                `;
-                grid.appendChild(row);
+            const opts = shuffle([...data.map(i => i.kk)]);
+            data.forEach((item, i) => {
+                grid.innerHTML += `<div class="en-label">${item.en}</div>
+                    <select id="l1-sel-${i}"><option value="">Таңдау...</option>
+                    ${opts.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
             });
         }
 
-        function checkLevel1() {
-            vocabulary.forEach((pair, index) => {
-                const select = document.getElementById(`l1-select-${index}`);
-                select.className = (select.value === pair.kk) ? 'correct' : 'incorrect';
+        function checkL1() {
+            data.forEach((item, i) => {
+                const el = document.getElementById(`l1-sel-${i}`);
+                el.className = (el.value === item.kk) ? 'correct' : 'incorrect';
             });
         }
 
-        // --- 2-ДЕҢГЕЙ ЛОГИКАСЫ ---
-        let level2Words = [];
-        let currentWordIndex = -1;
-
-        function resetLevel2() {
-            level2Words = shuffle([...vocabulary]);
-            currentWordIndex = -1;
-            document.getElementById('quiz-box').style.display = 'block';
-            document.getElementById('finish-message').style.display = 'none';
-            document.getElementById('eng-input').value = '';
-            document.getElementById('eng-input').className = '';
-            nextQuestion();
+        // LEVEL 2
+        function startL2() {
+            l2Words = shuffle([...data]); l2Idx = 0;
+            document.getElementById('l2-game').style.display = 'block';
+            document.getElementById('l2-finish').style.display = 'none';
+            showQ2();
+        }
+        function showQ2() {
+            document.getElementById('l2-q').textContent = l2Words[l2Idx].kk;
+            document.getElementById('l2-input').value = '';
+            document.getElementById('l2-input').className = '';
+            document.getElementById('l2-count').textContent = `Сөз: ${l2Idx + 1} / ${data.length}`;
+        }
+        function checkL2() {
+            const input = document.getElementById('l2-input');
+            const isRight = input.value.trim().toLowerCase() === l2Words[l2Idx].en.toLowerCase();
+            input.className = isRight ? 'correct' : 'incorrect';
+            if(!isRight) alert("Дұрыс жауап: " + l2Words[l2Idx].en);
+        }
+        function nextL2() {
+            l2Idx++;
+            if(l2Idx < data.length) showQ2();
+            else { 
+                document.getElementById('l2-game').style.display = 'none';
+                document.getElementById('l2-finish').style.display = 'block';
+            }
         }
 
-        function nextQuestion() {
-            currentWordIndex++;
-            if (currentWordIndex >= level2Words.length) {
-                document.getElementById('quiz-box').style.display = 'none';
-                document.getElementById('finish-message').style.display = 'block';
-                document.getElementById('counter').textContent = "";
-                return;
-            }
+        // LEVEL 3
+        function startL3() {
+            l3Words = shuffle([...data]); l3Idx = 0;
+            document.getElementById('l3-game').style.display = 'block';
+            document.getElementById('l3-finish').style.display = 'none';
+            showQ3();
+        }
+        function showQ3() {
+            selectedOpt = null;
+            const current = l3Words[l3Idx];
+            document.getElementById('l3-q').textContent = current.kk;
             
-            const input = document.getElementById('eng-input');
-            input.value = '';
-            input.className = '';
-            document.getElementById('kaz-word').textContent = level2Words[currentWordIndex].kk;
-            document.getElementById('counter').textContent = `Сөз: ${currentWordIndex + 1} / ${level2Words.length}`;
+            // Generate 4 options
+            let options = [current.en];
+            while(options.length < 4) {
+                let r = data[Math.floor(Math.random()*data.length)].en;
+                if(!options.includes(r)) options.push(r);
+            }
+            options = shuffle(options);
+
+            const optDiv = document.getElementById('l3-options');
+            optDiv.innerHTML = '';
+            options.forEach(o => {
+                const div = document.createElement('div');
+                div.className = 'option-card';
+                div.textContent = o;
+                div.onclick = () => {
+                    document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    div.classList.add('selected');
+                    selectedOpt = o;
+                };
+                optDiv.appendChild(div);
+            });
+            document.getElementById('l3-count').textContent = `Сөз: ${l3Idx + 1} / ${data.length}`;
         }
-
-        function checkLevel2() {
-            const input = document.getElementById('eng-input');
-            const userAnswer = input.value.trim().toLowerCase();
-            const correctAnswer = level2Words[currentWordIndex].en.toLowerCase();
-
-            if (userAnswer === correctAnswer) {
-                input.className = 'correct';
-            } else {
-                input.className = 'incorrect';
-                alert(`Қате! Дұрыс жауабы: ${level2Words[currentWordIndex].en}`);
+        function checkL3() {
+            if(!selectedOpt) return alert("Нұсқаны таңдаңыз!");
+            const cards = document.querySelectorAll('.option-card');
+            cards.forEach(card => {
+                if(card.textContent === l3Words[l3Idx].en) card.classList.add('correct');
+                else if(card.textContent === selectedOpt) card.classList.add('incorrect');
+            });
+        }
+        function nextL3() {
+            l3Idx++;
+            if(l3Idx < data.length) showQ3();
+            else {
+                document.getElementById('l3-game').style.display = 'none';
+                document.getElementById('l3-finish').style.display = 'block';
             }
         }
 
-        // Бастапқы іске қосу
-        initLevel1();
+        initL1();
     </script>
 </body>
 </html>
+
